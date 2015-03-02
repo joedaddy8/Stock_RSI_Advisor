@@ -41,6 +41,7 @@ class StockValue < ActiveRecord::Base
 
   def self.post_fill_rsi_values
     self.all.each do |sv|
+      next if sv.date.to_date < DateTime.new(2015) 
       sv.rsi_value #populate rsi values for the new stock values
     end
   end
