@@ -147,3 +147,4 @@ Stock.create(code: 'ZOES')
 
 StockValue.populate_values
 StockValue.populate_values(true)
+StockValue.post_fill_rsi_values
