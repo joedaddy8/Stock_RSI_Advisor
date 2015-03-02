@@ -5,7 +5,7 @@
 #   git config --global core.excludesfile '~/.gitignore_global'
 
 # Ignore configurations
-/config/*.yml
+/config/config.yml
 
 # Ignore bundler config.
 /.bundle
