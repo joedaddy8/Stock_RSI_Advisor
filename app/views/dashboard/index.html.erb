@@ -1,0 +1,36 @@
+<%= link_to "Create Stock", {action: :create_stock} %>
+
+<h1>Dashboard</h1>
+<table border>
+  <tr>
+    <th>Stock Code</th>
+    <th>% Change</th>
+    <th>High</th>
+    <th>Low</th>
+    <th>Open</th>
+    <th>Close</th>
+    <th>RSI</th>
+    <th>Low Alert</th>
+    <th>High Alert</th>
+    <th>Save</th>
+  </tr>
+  <% @stocks.each do |stock| %>
+    <% stock_value = stock.stock_values.sort_by{|sv|sv.date.to_date}.last %>
+    <tr>
+      <td><%= stock.code %></td>
+      <td><%= stock_value.change_in_percent.round(2) %></td>
+      <td><%= stock_value.high.round(2) %></td>
+      <td><%= stock_value.low.round(2) %></td>
+      <td><%= stock_value.open_value.round(2) %></td>
+      <td><%= stock_value.close_value.round(2) %></td>
+      <td><%= stock_value.rsi_value.round(2) %></td>
+      <%= form_tag("/update_rsi_warning/", method: "get") do %>
+        <%= hidden_field_tag(:stock_id, stock.id) %>
+        <% rsi = stock.rsi_warning %>
+        <td><%= text_field_tag "low", rsi.nil? ? 0 : rsi.low_warning %></td>
+        <td><%= text_field_tag "high", rsi.nil? ? 0 : rsi.high_warning %></td>
+        <td><%= submit_tag("Save") %></td>
+      <% end %>
+    </tr>
+  <% end %> 
+</table>

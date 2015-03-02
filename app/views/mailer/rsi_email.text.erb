@@ -1,0 +1,1 @@
+<%= @stock.name %>'s RSI has <%= @w == "high" ? "risen" : "dropped" %> to <%= @stock.rsi.round(2) %>. Warning was set to <%= @w== "high" ? @warning.high_warning : @warning.low_warning %>. 
