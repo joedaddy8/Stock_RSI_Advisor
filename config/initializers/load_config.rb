@@ -1,1 +1,3 @@
-APP_CONFIG = YAML.load_file("#{Rails.root}/config/config.yml")
+APP_CONFIG = Hash.new
+APP_CONFIG["pwd"] = ENV["pwd"]
+APP_CONFIG["app_pwd"] = ENV["app_pwd"]
