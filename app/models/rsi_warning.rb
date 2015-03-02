@@ -5,6 +5,7 @@ class RsiWarning < ActiveRecord::Base
   def self.send_warnings
     Stock.all.each do |stock|
       warning = RsiWarning.where(stock_id: stock.id).first
+      next if warning.nil?
       if stock.rsi > warning.high_warning
         Mailer.rsi_email(stock.id, "high").deliver_now
       end
