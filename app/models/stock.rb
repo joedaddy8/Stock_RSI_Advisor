@@ -33,8 +33,8 @@ class Stock < ActiveRecord::Base
     up_days.map!{|date|StockValue.where(stock_id:id,date:date.strftime("%d/%m/%Y")).first.change}
     down_days.map!{|date|StockValue.where(stock_id:id,date:date.strftime("%d/%m/%Y")).first.change}
 
-    average_gain = (up_days.sum)/(up_days.count) rescue 0.01
-    average_loss = (down_days.sum)/(down_days.count) rescue 0.01
+    average_gain = (up_days.sum)/range rescue 0.01
+    average_loss = (down_days.sum)/range rescue 0.01
 
     return 100 - (100/(1 + (average_gain/average_loss.abs)))
   end
