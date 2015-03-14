@@ -4,6 +4,7 @@ class DashboardController < ApplicationController
   end
 
   def stock
+    @stock = Stock.find(params[:id])
   end
 
   def stock_value

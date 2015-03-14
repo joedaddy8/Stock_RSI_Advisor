@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   get 'dashboard/index'
 
   get 'dashboard/stock'
+  get '/stock/:id', to: 'dashboard#stock', as: 'stock'
 
   get 'dashboard/stock_value'
 

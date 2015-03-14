@@ -17,7 +17,7 @@
   <% @stocks.each do |stock| %>
     <% stock_value = stock.stock_values.sort_by{|sv|sv.date.to_date}.last %>
     <tr>
-      <td><%= stock.code %></td>
+      <td><%= link_to stock.code, stock_path(stock.id) %></td>
       <td><%= stock_value.change_in_percent.round(2) %></td>
       <td><%= stock_value.high.round(2) %></td>
       <td><%= stock_value.low.round(2) %></td>

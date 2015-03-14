@@ -5,7 +5,7 @@ class StockValue < ActiveRecord::Base
 
   def rsi_value
     if rsi.nil?
-      new_rsi = stock.rsi(DateTime.strptime(date,"%d/%m/%Y"))
+      new_rsi = stock.rsi(DateTime.strptime(date,"%d/%m/%Y"), 14, change)
       self.rsi = new_rsi
       self.save
     end
@@ -13,10 +13,14 @@ class StockValue < ActiveRecord::Base
     return rsi
   end
 
+  def yesterdays_rsi
+    StockValue.where(stock_id: self.stock_id, date: 1.business_day.before(date.to_date).strftime("%d/%m/%Y")).try(:rsi_value)
+  end
+
 
   def self.populate_values(historical = false) 
     #Update current day
-    if(historical)
+    if(!historical)
       Stock.all.each do |stock|
         data = YahooFinance.quotes([stock.code], [:average_daily_volume, :change, :change_in_percent, :close, :high, :low, :open, :pe_ratio, :previous_close, :volume])[0]
 
@@ -40,13 +44,11 @@ class StockValue < ActiveRecord::Base
   end
 
   def self.post_fill_rsi_values
-    self.all.each do |sv|
-      next if sv.date.to_date < DateTime.new(2015) 
-      sv.rsi_value #populate rsi values for the new stock values
+    sorted_stock_values = StockValue.all.sort{|a,b| a.date.to_date <=> b.date.to_date}
+
+    sorted_stock_values.each do |stock_value|
+      next if stock_value.date.to_date < DateTime.new(2015) 
+      stock_value.rsi_value
     end
-  end
-
-  def self.populate_historical_data(date)
-
   end
 end
