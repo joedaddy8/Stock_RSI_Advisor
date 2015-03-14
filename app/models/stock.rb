@@ -51,7 +51,6 @@ class Stock < ActiveRecord::Base
 
       return 100 - (100/(1 + (average_gain/average_loss.abs)))
     else
-      pry
       (stock_value.first.rsi_value * 13 + current_change)/14
     end
   end
