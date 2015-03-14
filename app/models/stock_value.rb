@@ -5,7 +5,7 @@ class StockValue < ActiveRecord::Base
 
   def rsi_value
     if rsi.nil?
-      new_rsi = stock.rsi(DateTime.strptime(date,"%d/%m/%Y"), 14, change)
+      new_rsi = stock.rsi(DateTime.strptime(date,"%d/%m/%Y"), 14, open_value - close_value)
       self.rsi = new_rsi
       self.save
     end
