@@ -98,7 +98,7 @@ class StockValue < ActiveRecord::Base
     sorted_stock_values = StockValue.all.sort{|a,b| a.date.to_date <=> b.date.to_date}
 
     sorted_stock_values.each do |stock_value|
-      next if stock_value.date.to_date < DateTime.new(2014,8) 
+      next if stock_value.date.to_date < DateTime.new(2014,9) 
       stock_value.rsi_value
     end
   end
