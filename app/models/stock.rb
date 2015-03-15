@@ -36,7 +36,7 @@ class Stock < ActiveRecord::Base
 
     if stock_value.empty? and stock_value.first.nil?
       
-      dates = stock_value.get_last_14_stock_values.map{|sv|sv.date.to_date}
+      dates = stock_value.first.get_last_14_stock_values.map{|sv|sv.date.to_date}
       dates.each do |date|
         up = self.up? date.strftime("%d/%m/%Y")
         if up == true
