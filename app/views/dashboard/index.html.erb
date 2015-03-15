@@ -23,7 +23,7 @@
       <td><%= stock_value.low.round(2) %></td>
       <td><%= stock_value.open_value.round(2) %></td>
       <td><%= stock_value.close_value.round(2) %></td>
-      <td><%= stock_value.rsi_value.round(2) %></td>
+      <td><%= stock_value.rsi_value.try(:round,2) %></td>
       <%= form_tag("/update_rsi_warning/", method: "get") do %>
         <%= hidden_field_tag(:stock_id, stock.id) %>
         <% rsi = stock.rsi_warning %>
