@@ -24,7 +24,7 @@ class Stock < ActiveRecord::Base
     last_business_day = 1.business_day.before(date)
     stock_value = StockValue.where(stock_id: self.id, date: last_business_day.strftime("%d/%m/%Y"))
 
-    lookup_range = 4
+    lookup_range = 7
     count = 0
 
     while stock_value.empty? and count < lookup_range

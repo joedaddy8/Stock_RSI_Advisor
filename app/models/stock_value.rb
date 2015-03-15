@@ -84,7 +84,7 @@ class StockValue < ActiveRecord::Base
           data = YahooFinance.historical_quotes(stock.code, period: :daily)
           data.each do |stock_value|
             trade_date = "#{stock_value.trade_date[8..9]}/#{stock_value.trade_date[5..6]}/#{stock_value.trade_date[0..3]}"
-            next if DateTime.strptime(trade_date,"%d/%m/%Y") < DateTime.new(2014,1,1)
+            next if DateTime.strptime(trade_date,"%d/%m/%Y") < DateTime.new(2014,7)
             StockValue.create(stock_id:stock.id, change: stock_value.close.to_d - stock_value.open.to_d, change_in_percent: (stock_value.close.to_d - stock_value.open.to_d)/stock_value.close.to_d, close_value:stock_value.close, high:stock_value.high, low:stock_value.low, open_value:stock_value.open, date:trade_date)
           end
         rescue OpenURI::HTTPError => ex
