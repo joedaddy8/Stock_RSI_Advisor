@@ -61,7 +61,14 @@ class StockValue < ActiveRecord::Base
 
 
   def yesterdays_stock_value
-    StockValue.where(stock_id: self.stock_id, date: 1.business_day.before(date.to_date).strftime("%d/%m/%Y")).first
+    s = nil
+    count = 1
+    while s.nil?
+      s = StockValue.where(stock_id: self.stock_id, date: count.business_day.before(date.to_date).strftime("%d/%m/%Y")).first
+      count = count + 1
+    end
+
+    return s
   end
 
   def yesterdays_rsi
@@ -84,7 +91,7 @@ class StockValue < ActiveRecord::Base
           data = YahooFinance.historical_quotes(stock.code, period: :daily)
           data.each do |stock_value|
             trade_date = "#{stock_value.trade_date[8..9]}/#{stock_value.trade_date[5..6]}/#{stock_value.trade_date[0..3]}"
-            next if DateTime.strptime(trade_date,"%d/%m/%Y") < DateTime.new(2014,7)
+            next if DateTime.strptime(trade_date,"%d/%m/%Y") < DateTime.new(2014,4)
             StockValue.create(stock_id:stock.id, change: stock_value.close.to_d - stock_value.open.to_d, change_in_percent: (stock_value.close.to_d - stock_value.open.to_d)/stock_value.close.to_d, close_value:stock_value.close, high:stock_value.high, low:stock_value.low, open_value:stock_value.open, date:trade_date)
           end
         rescue OpenURI::HTTPError => ex
@@ -98,7 +105,7 @@ class StockValue < ActiveRecord::Base
     sorted_stock_values = StockValue.all.sort{|a,b| a.date.to_date <=> b.date.to_date}
 
     sorted_stock_values.each do |stock_value|
-      next if stock_value.date.to_date < DateTime.new(2014,9) 
+      next if stock_value.date.to_date < DateTime.new(2014,6) 
       stock_value.rsi_value
     end
   end
