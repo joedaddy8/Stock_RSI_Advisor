@@ -136,9 +136,5 @@ Stock.create(name:'Zoes Kitchen' , code: 'ZOES')
 
 StockValue.populate_values
 StockValue.populate_values(true)
-Stock.all.each do |s|
-  s.stock_values.sort{|a,b|a.date.to_date <=> b.date.to_date}.each do |sv|
-    next if sv.date.to_date < DateTime.new(2015)
-    sv.rsi_value
-  end
-end
+
+StockValue.post_fill_rsi_values

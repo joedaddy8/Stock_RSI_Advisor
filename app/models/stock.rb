@@ -26,6 +26,7 @@ class Stock < ActiveRecord::Base
 
     lookup_range = 4
     count = 0
+
     while stock_value.empty? and count < lookup_range
       last_business_day = 1.business_day.before(last_business_day)
       stock_value = StockValue.where(stock_id: self.id, date: last_business_day.strftime("%d/%m/%Y"))
@@ -34,8 +35,10 @@ class Stock < ActiveRecord::Base
 
 
     if stock_value.empty? and stock_value.first.nil?
-      ((date - range.days)..date).each do |day|
-        up = self.up? day.strftime("%d/%m/%Y")
+      
+      dates = get_last_14_stock_values.map{|sv|sv.date.to_date}
+      dates.each do |date|
+        up = self.up? date.strftime("%d/%m/%Y")
         if up == true
           up_days << day
         elsif up == false
@@ -53,9 +56,21 @@ class Stock < ActiveRecord::Base
     else
 
       avg_loss, avg_gain = stock_value.first.calculate_average_changes
+      avg_gain = 0.001 if avg_gain.nil?
+      avg_loss = 0.001 if avg_loss.nil?
 
-      average_gain = (avg_gain * 13 + stock_values.last.average_gain) / 14
-      average_loss = ((avg_loss * 13 + stock_values.last.average_loss) / 14).abs
+      current_gain = 0
+      current_loss = 0
+
+      current_change = stock_values.last.change
+      if current_change > 0
+        current_gain = current_change
+      elsif current_change < 0
+        current_loss = current_change
+      end
+
+      average_gain = (avg_gain * 13 + current_gain) / 14
+      average_loss = ((avg_loss.abs * 13 + current_loss.abs) / 14).abs
 
       return 100 - (100/(1 + (average_gain/average_loss)))
     end
