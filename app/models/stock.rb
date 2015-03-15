@@ -49,9 +49,15 @@ class Stock < ActiveRecord::Base
       average_gain = (up_days.sum)/range rescue 0.01
       average_loss = (down_days.sum)/range rescue 0.01
 
-      return 100 - (100/(1 + (average_gain/average_loss.abs)))
+      return average_gain/(average_loss.abs)
     else
-      (stock_value.first.rsi_value * 13 + current_change)/14
+
+      avg_loss, avg_gain = stock_value.first.calculate_average_changes
+
+      average_gain = (avg_gain * 13 + stock_values.last.average_gain) / 14
+      average_loss = ((avg_loss * 13 + stock_values.last.average_loss) / 14).abs
+
+      return 100 - (100/(1 + (average_gain/average_loss)))
     end
   end
 

@@ -5,12 +5,77 @@ class StockValue < ActiveRecord::Base
 
   def rsi_value
     if rsi.nil?
-      new_rsi = stock.rsi(DateTime.strptime(date,"%d/%m/%Y"), 14, open_value - close_value)
+      new_rsi = stock.rsi(DateTime.strptime(date,"%d/%m/%Y"), 14, change)
       self.rsi = new_rsi
       self.save
     end
 
     return rsi
+  end
+
+  def calculate_average_changes
+    if !average_gain.nil? and !average_loss.nil?
+#      return average_loss, average_gain
+    end
+
+    range = 14
+    up_days = []
+    down_days = []
+
+    ((date.to_date - range.days)..date.to_date).each do |day|
+      
+      up = self.up?(day.strftime("%d/%m/%Y"))
+      next if up.nil?
+      if up
+        up_days << day
+      elsif !up
+        down_days << day
+      end
+    end
+
+    up_days.map!{|date|StockValue.where(stock_id:id,date:date.strftime("%d/%m/%Y")).first.try(:change)}
+    down_days.map!{|date|StockValue.where(stock_id:id,date:date.strftime("%d/%m/%Y")).first.try(:change)}
+
+    up_average = (up_days.sum)/14 rescue 0.01
+    down_average = (down_days.sum)/14 rescue 0.01
+
+    self.average_gain = up_average
+    self.average_loss = down_average
+    self.save
+
+    return down_average, up_average
+  end
+
+  def average_loss
+    range = 14
+    down_days = []
+
+    ((date.to_date - range.days)..date.to_date).each do |day|
+      down = !(self.up? day.strftime("%d/%m/%Y"))
+      if down == true
+        down_days << day
+      end
+    end
+      down_days.map!{|date|StockValue.where(stock_id:id,date:date.strftime("%d/%m/%Y")).first.try(:change)}
+      (down_days.sum)/14 rescue 0.01
+  end
+
+  def average_gain
+    range = 14
+    up_days = []
+
+    ((date.to_date - range.days)..date.to_date).each do |day|
+      up = self.up? day.strftime("%d/%m/%Y")
+      if up == true
+        up_days << day
+      end
+    end
+      up_days.map!{|date|StockValue.where(stock_id:id,date:date.strftime("%d/%m/%Y")).first.try(:change)}
+      (up_days.sum)/14 rescue 0.01
+  end
+
+  def yesterdays_stock_value
+    StockValue.where(stock_id: self.stock_id, date: 1.business_day.before(date.to_date).strftime("%d/%m/%Y")).first
   end
 
   def yesterdays_rsi
@@ -50,5 +115,13 @@ class StockValue < ActiveRecord::Base
       next if stock_value.date.to_date < DateTime.new(2015) 
       stock_value.rsi_value
     end
+  end
+
+  def up?(lookup_date= self.date)
+    stock_value = StockValue.where(stock_id: stock_id, date: lookup_date).first 
+
+    return nil if stock_value.nil?
+
+    (stock_value.close_value - stock_value.open_value) > 0
   end
 end

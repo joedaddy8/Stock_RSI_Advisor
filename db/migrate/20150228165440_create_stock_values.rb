@@ -6,6 +6,8 @@ class CreateStockValues < ActiveRecord::Migration
       t.decimal :change
       t.decimal :change_in_percent
       t.decimal :close_value
+      t.decimal :average_gain
+      t.decimal :average_loss
       t.decimal :high
       t.decimal :low
       t.decimal :open_value
