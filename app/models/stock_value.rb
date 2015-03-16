@@ -3,8 +3,6 @@ class StockValue < ActiveRecord::Base
 
   belongs_to :stock
 
-  @@sorted_values
-
   def rsi_value
     if rsi.nil?
       new_rsi = stock.rsi(DateTime.strptime(date,"%d/%m/%Y"), 14, change)
@@ -16,17 +14,48 @@ class StockValue < ActiveRecord::Base
   end
 
   def self.get_sorted_values(stock_id)
-    @@sorted_values ||= self.all.where(stock_id:stock_id).sort{|a,b| a.date.to_date <=> b.date.to_date}
+    self.all.where(stock_id:stock_id).sort{|a,b| a.date.to_date <=> b.date.to_date}
   end
 
   def get_last_14_stock_values
-    StockValue.get_sorted_values(self.stock_id).to_a.delete_if{|sv| sv.date.to_date >= self.date.to_date}[-14..-1]
+    a = StockValue.get_sorted_values(self.stock_id).to_a
+    return a if a.count <= 14
+
+    b= a.delete_if{|sv| sv.date.to_date >= self.date.to_date}
+    return b if b.count <= 14
+    
+    return b[-14..-1]
   end
 
   def calculate_average_changes
-    #if !average_gain.nil? and !average_loss.nil?
-    #  return average_loss, average_gain
-    #end
+    
+    current_change = self.change
+    current_gain = 0
+    current_loss = 0
+    if current_change > 0
+      current_gain = current_change
+    elsif current_change < 0
+      current_loss = current_change
+    end
+
+    yesterdays_sv = self.yesterdays_stock_value
+    if !average_gain.nil? and !average_loss.nil?
+      return average_loss, average_gain
+    elsif !yesterdays_sv.average_gain.nil?
+      @cg = current_gain
+      @yd = yesterdays_sv
+      @ag = yesterdays_sv.average_gain
+      
+      avg_gain = (yesterdays_sv.average_gain * 13 + current_gain ) / 14
+      avg_loss = (yesterdays_sv.average_loss * 13 + current_loss ) / 14
+
+      self.average_gain = avg_gain
+      self.average_loss = avg_loss
+      self.save
+
+      return avg_loss, avg_gain
+    end
+
 
     range = 14
     up_days = []
@@ -43,6 +72,7 @@ class StockValue < ActiveRecord::Base
         down_days << day
       end
     end
+
 
     up_days.map!{|date|StockValue.where(stock_id:stock_id,date:date.strftime("%d/%m/%Y")).first.try(:change)}
     down_days.map!{|date|StockValue.where(stock_id:stock_id,date:date.strftime("%d/%m/%Y")).first.try(:change)}
@@ -105,7 +135,7 @@ class StockValue < ActiveRecord::Base
     sorted_stock_values = StockValue.all.sort{|a,b| a.date.to_date <=> b.date.to_date}
 
     sorted_stock_values.each do |stock_value|
-      next if stock_value.date.to_date < DateTime.new(2014,6) 
+      next if stock_value.date.to_date < DateTime.new(2014,5) 
       stock_value.rsi_value
     end
   end

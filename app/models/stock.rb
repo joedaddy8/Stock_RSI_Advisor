@@ -18,24 +18,26 @@ class Stock < ActiveRecord::Base
 
   def rsi(date = Date.current, range = 14, current_change)
 
+
     up_days = []
     down_days = []
 
     last_business_day = 1.business_day.before(date)
-    stock_value = StockValue.where(stock_id: self.id, date: last_business_day.strftime("%d/%m/%Y"))
+    stock_value = StockValue.where(stock_id: self.id, date: date.strftime("%d/%m/%Y"))
+#    stock_value = StockValue.where(stock_id: self.id, date: last_business_day.strftime("%d/%m/%Y"))
 
     lookup_range = 7
     count = 0
 
-    while stock_value.empty? and count < lookup_range
-      last_business_day = 1.business_day.before(last_business_day)
-      stock_value = StockValue.where(stock_id: self.id, date: last_business_day.strftime("%d/%m/%Y"))
-      count = count + 1
-    end
+#    while stock_value.empty? and count < lookup_range
+#      last_business_day = 1.business_day.before(last_business_day)
+#      stock_value = StockValue.where(stock_id: self.id, date: last_business_day.strftime("%d/%m/%Y"))
+#      count = count + 1
+
+#    end
 
 
-    if stock_value.first.yesterdays_stock_value.rsi.nil? 
-      
+    if !stock_value.first.nil? and stock_value.first.yesterdays_stock_value.average_gain.nil? 
       dates = stock_value.first.get_last_14_stock_values.map{|sv|sv.date.to_date}
       dates.each do |date|
         up = self.up? date.strftime("%d/%m/%Y")
@@ -54,25 +56,32 @@ class Stock < ActiveRecord::Base
 
       return average_gain/(average_loss.abs)
     else
-
-      avg_loss, avg_gain = stock_value.first.calculate_average_changes
-      avg_gain = 0.001 if avg_gain.nil?
-      avg_loss = 0.001 if avg_loss.nil?
+      puts "Second loop"
 
       current_gain = 0
       current_loss = 0
 
-      current_change = stock_values.last.change
+      current_change = StockValue.where(stock_id:self.id, date:date.strftime("%d/%m/%Y")).first.change
       if current_change > 0
         current_gain = current_change
       elsif current_change < 0
         current_loss = current_change
       end
 
-      average_gain = (avg_gain * 13 + current_gain) / 14
-      average_loss = ((avg_loss.abs * 13 + current_loss.abs) / 14).abs
+      average_loss, average_gain = stock_value.first.calculate_average_changes
 
-      return 100 - (100/(1 + (average_gain/average_loss)))
+
+
+      puts "date is #{date.strftime('%d/%m/%Y')}"
+      puts "old avg gain #{average_gain}"
+      puts "old avg loss #{average_loss.abs}"
+      puts "current gain #{current_gain}"
+      puts "current loss #{current_loss}"
+
+      puts "RS = #{average_gain/average_loss}"
+      puts "RSI = #{100 - (100/(1 + (average_gain/average_loss)))}"
+      
+      return (100 - (100/(1 + (average_gain/(average_loss.abs)))))
     end
   end
 
