@@ -120,6 +120,8 @@ class StockValue < ActiveRecord::Base
     while s.nil?
       s = StockValue.where(stock_id: self.stock_id, date: count.business_days.before(date.to_date).strftime("%d/%m/%Y")).first
       count = count + 1
+      
+      return 0 if count > 15
     end
 
     return s

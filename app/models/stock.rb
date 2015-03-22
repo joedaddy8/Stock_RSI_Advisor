@@ -16,7 +16,7 @@ class Stock < ActiveRecord::Base
      end
   end
 
-  def rsi(date = Date.current, range = 14, current_change)
+  def rsi(date = Date.current, range = 14, current_change=0)
 
     stock_value = StockValue.where(stock_id: self.id, date: date.strftime("%d/%m/%Y"))
 
