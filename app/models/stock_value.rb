@@ -160,14 +160,18 @@ class StockValue < ActiveRecord::Base
 
     populate_values(true)
 
-    sorted_stock_values = StockValue.all.sort{|a,b| a.date.to_date <=> b.date.to_date}
+    sorted_stocks = StockValue.all.sort{|a,b| a.date.to_date <=> b.date.to_date}.group_by(&:stock_id)
 
-    sorted_stock_values.each do |stock_value|
+    sorted_stocks.each do |stock, sorted_stock_values|
+      count = 0
+      sorted_stock_values.each do |stock_value|
 
-      next if stock_value.date.to_date < DateTime.new(2014,6) 
+        count = count + 1
+        next if count < 15
 
-      down, up = stock_value.calculate_average_changes
-      stock_value.rsi_value
+        down, up = stock_value.calculate_average_changes
+        stock_value.rsi_value
+      end
     end
   end
 
