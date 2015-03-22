@@ -65,6 +65,7 @@ class StockValue < ActiveRecord::Base
 
     yesterdays_sv = self.yesterdays_stock_value
 
+
     if !average_gain.nil? and !average_loss.nil?
       return average_loss, average_gain
     elsif !yesterdays_sv.average_gain.nil?
@@ -175,6 +176,14 @@ class StockValue < ActiveRecord::Base
         stock_value.rsi_value
       end
     end
+
+    ##Fix the stocks that didn't populate correctly
+    incorrect_stocks = Stock.all.to_a.delete_if{|stock| stock.stock_values.map{|sv| sv.rsi}.compact < 4}
+    incorrect_stocks.each do |incorrect_stock|
+      incorrect_stock.correct
+    end
+    
+
   end
 
   def up?(lookup_date= self.date)

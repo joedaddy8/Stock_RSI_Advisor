@@ -2,6 +2,8 @@ class Stock < ActiveRecord::Base
   has_many :stock_values
   has_one :rsi_warning
 
+  require 'googlecharts'
+
   def self.codes
     Stock.all.map{|stock|stock.code}.to_a
   end
@@ -43,4 +45,25 @@ class Stock < ActiveRecord::Base
     end
   end
 
+  def rsi_graph
+    @rsi_values = stock_values.sort{|a,b| a.date.to_date <=> b.date.to_date}[-14..-1] 
+    @rsi_values.map!{|stock_value| stock_value.rsi_value.round(2)}
+    Gchart.new(type: 'line',
+               title:"#{name} - RSI",
+               size: '1000x250',
+               axis_with_labels: [['x'],['y']],
+               axis_labels: [[@rsi_values.join("|")],[(0..100).to_a.keep_if{|val|val%10==0}.join("|")]],
+               data: @rsi_values)
+  end
+
+  def correct
+    count = 0
+
+    stock_values.sort{|a,b| a.date.to_date <=> b.date.to_date}.each do |stock_value|
+      count = count + 1
+      next if count < 15
+      stock_value.calculate_average_changes
+      stock_value.rsi_value
+    end
+  end
 end
