@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+gem 'jquery-tablesorter'
+gem 'jquery-turbolinks'
 gem 'pg'
 gem 'pry'
 gem 'yahoo-finance'

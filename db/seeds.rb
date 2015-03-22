@@ -132,7 +132,4 @@ Stock.create(name:'Yahoo' , code: 'YHOO')
 Stock.create(name:'Yum Brands' , code: 'YUM')
 Stock.create(name:'Zoes Kitchen' , code: 'ZOES')
 
-StockValue.populate_values
-StockValue.populate_values(true)
-
 StockValue.post_fill_rsi_values

@@ -31,13 +31,12 @@ StockValue.create(stock_id:stock.id, date:'25/01/2010', change:0.15 , open_value
 StockValue.create(stock_id:stock.id, date:'26/01/2010', change:0.04 , open_value:44.18 ,close_value:44.22 )
 StockValue.create(stock_id:stock.id, date:'27/01/2010', change:0.35 , open_value:44.22 ,close_value:44.57 )
 
-StockValue.get_sorted_values(stock.id).each do |sv|
-  next if sv.date.to_date < DateTime.new(2010,1,5)
-  down, up = sv.calculate_average_changes
-  rsi = sv.rsi_value
+sorted_stock_values = StockValue.all.sort{|a,b| a.date.to_date <=> b.date.to_date}
 
-  puts sv.date
-  puts "Down- #{down}, Up- #{up}"
-  puts "RSI- #{rsi}"
-  puts "-----"
+sorted_stock_values.each do |stock_value|
+
+  next if stock_value.date.to_date < DateTime.new(2010,1,15) 
+
+  down, up = stock_value.calculate_average_changes
+  stock_value.rsi_value
 end
