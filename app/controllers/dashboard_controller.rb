@@ -5,6 +5,8 @@ class DashboardController < ApplicationController
 
   def stock
     @stock = Stock.find(params[:id])
+
+    @rsi_graph = @stock.rsi_graph 
   end
 
   def stock_value

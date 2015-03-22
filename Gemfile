@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'googlecharts'
 gem 'jquery-tablesorter'
 gem 'jquery-turbolinks'
 gem 'pg'
