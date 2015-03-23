@@ -57,12 +57,18 @@ class Stock < ActiveRecord::Base
   end
 
   def correct
+    
     count = 0
-
     stock_values.sort{|a,b| a.date.to_date <=> b.date.to_date}.each do |stock_value|
       count = count + 1
       next if count < 15
       stock_value.calculate_average_changes
+    end
+
+    count = 0
+    stock_values.sort{|a,b| a.date.to_date <=> b.date.to_date}.each do |stock_value|
+      count = count + 1
+      next if count < 15
       stock_value.rsi_value
     end
   end
