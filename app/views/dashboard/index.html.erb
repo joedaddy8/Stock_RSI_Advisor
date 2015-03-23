@@ -38,8 +38,3 @@
     <% end %> 
   </tbody>
 </table>
-<% @stocks.each do |stock| %>
-  <div class="graph" id=<%= stock.id %>>
-    <%= image_tag stock.rsi_graph.url %>
-  </div>
-<% end %>
