@@ -178,7 +178,7 @@ class StockValue < ActiveRecord::Base
     end
 
     ##Fix the stocks that didn't populate correctly
-    incorrect_stocks = Stock.all.to_a.delete_if{|stock| stock.stock_values.map{|sv| sv.rsi}.compact.count < 4}
+    incorrect_stocks = Stock.all.to_a.delete_if{|stock| stock.stock_values.map{|sv| sv.rsi}.compact.count > 4}
     incorrect_stocks.each do |incorrect_stock|
       incorrect_stock.correct
     end
